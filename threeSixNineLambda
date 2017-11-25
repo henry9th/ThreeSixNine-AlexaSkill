@@ -1,0 +1,206 @@
+'use strict';
+const Alexa = require('alexa-sdk');
+
+//Messages
+
+const WELCOME_MESSAGE = "Say play three six nine to start";
+
+const START_GAME_MESSAGE = "OK. I will start!";
+
+const EXIT_SKILL_MESSAGE = "Better luck next time!";
+
+const HELP_MESSAGE = "Three six nine is a game where we take turns counting up from one. If the number has a three, six, or nine anywhere, you're going to say quack";
+
+const speechConsWrong = ["Argh", "Aw man", "Blarg", "Blast", "Boo", "Bummer", "Darn", "D'oh", "Dun dun dun", "Eek", "Honk", "Le sigh",
+"Mamma mia", "Oh boy", "Oh dear", "Oof", "Ouch", "Ruh roh", "Shucks", "Uh oh", "Wah wah", "Whoops a daisy", "Yikes"];
+
+
+const states = {
+    START: "_START",
+    GAME: "_GAME"
+};
+
+const handlers = {
+     "LaunchRequest": function() {
+        // this.handler.state = states.START;
+        // this.emitWithState("Start");
+
+        this.handler.state = states.GAME;
+        this.emitWithState("NextNumber");
+     },
+    "PlayIntent": function() {
+        this.handler.state = states.GAME;
+        this.emitWithState("NextNumber");
+    },
+    "AMAZON.HelpIntent": function() {
+        this.response.speak(HELP_MESSAGE).listen(HELP_MESSAGE);
+        this.emit(":responseReady");
+    },
+    "Unhandled": function() {
+        this.handler.state = states.START;
+        this.emitWithState("Start");
+    }
+};
+
+
+//When skill is in START state
+
+const startHandlers = Alexa.CreateStateHandler(states.START,{
+    "Start": function() {
+        this.response.speak(WELCOME_MESSAGE).listen(HELP_MESSAGE);
+        this.emit(":responseReady");
+    },
+    "PlayIntent": function() {
+        this.handler.state = states.GAME;
+        this.emitWithState("NextNumber");
+    },
+    "AMAZON.StopIntent": function() {
+        this.response.speak(EXIT_SKILL_MESSAGE);
+        this.emit(":responseReady");
+    },
+    "AMAZON.CancelIntent": function() {
+        this.response.speak(EXIT_SKILL_MESSAGE);
+        this.emit(":responseReady");
+    },
+    "AMAZON.HelpIntent": function() {
+        this.response.speak(HELP_MESSAGE).listen(HELP_MESSAGE);
+        this.emit(":responseReady");
+    },
+    "Unhandled": function() {
+        this.emitWithState("Start");
+    }
+});
+
+
+//When skill is in GAME state
+var counter = 1;
+
+
+const gameHandlers = Alexa.CreateStateHandler(states.GAME,{
+    "GAME": function() {
+        this.attributes.response = "";
+        //this.attributes.counter = 1;
+        this.emitWithState("NextNumber");
+    },
+    "NextNumber": function() {
+        //If the counter is at 1, the game is beginning with Alexa
+        if (counter == 1)
+        {
+            this.attributes.response = START_GAME_MESSAGE + " ";
+        } else {
+            this.attributes.response = " ";
+        }
+
+        let speech = " ";
+        let divisible = counter % 3;
+
+        let counterString = counter.toString();
+        if (counterString.indexOf('3') > - 1 || counterString.indexOf('6') > - 1 || counterString.indexOf('9') > - 1 || divisible === 0) {
+            speech = this.attributes.response + "quack";
+        } else {
+            speech = this.attributes.response + counter;
+        }
+
+        counter++;
+        this.emit(":ask", speech, counter);
+    },
+    "AnswerIntent": function() {
+        let response = "";
+        let speechOutput = "";
+
+        let correct = compareSlots(this.event.request.intent.slots, counter);
+        //Game continues when you get the correct value
+        if (correct)
+        {
+            counter++;
+            this.emitWithState("NextNumber");
+        }
+        //Game ends when the value is incorrect
+        else
+        {
+            response = getSpeechCon(false);
+            response += "your final score is " + counter;
+            speechOutput = response + ". " + EXIT_SKILL_MESSAGE;
+            this.response.speak(speechOutput);
+            counter = 1;
+            this.emit(":responseReady");
+        }
+    },
+
+    "AMAZON.StopIntent": function() {
+        this.response.speak(EXIT_SKILL_MESSAGE);
+        this.emit(":responseReady");
+    },
+    "AMAZON.CancelIntent": function() {
+        this.response.speak(EXIT_SKILL_MESSAGE);
+        this.emit(":responseReady");
+    },
+    "AMAZON.HelpIntent": function() {
+        this.response.speak(HELP_MESSAGE).listen(HELP_MESSAGE);
+        this.emit(":responseReady");
+    },
+    "Unhandled": function() {
+        this.emitWithState("AnswerIntent");
+    }
+});
+
+function compareSlots(slots, value)
+{
+    for (let slot in slots)
+    {
+        if (slots[slot].value !== undefined)
+        {
+            let slotValue = slots[slot].value.toString().toLowerCase();
+            let counterValue = value.toString();
+
+            let divisible = value % 3;
+            if (divisible === 0) {
+                if (slotValue == "quack") {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            if (counterValue.indexOf('3') > - 1 || counterValue.indexOf('6') > - 1 || counterValue.indexOf('9') > - 1) {
+                if (slotValue == "quack") {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            if (slotValue == value.toString().toLowerCase())
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+
+function getSpeechCon(type)
+{
+    let speechCon = "";
+     return "<say-as interpret-as='interjection'>" + speechConsWrong[getRandom(0, speechConsWrong.length-1)] + " </say-as><break strength='strong'/>";
+}
+
+function getRandom(min, max)
+{
+    return Math.floor(Math.random() * (max-min+1)+min);
+}
+
+function formatCasing(key)
+{
+    key = key.split(/(?=[A-Z])/).join(" ");
+    return key;
+}
+
+
+exports.handler = (event, context) => {
+    const alexa = Alexa.handler(event, context);
+    //alexa.appId = APP_ID;
+    alexa.registerHandlers(handlers, startHandlers, gameHandlers);
+    alexa.execute();
+};
