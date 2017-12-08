@@ -1,0 +1,89 @@
+{
+  "languageModel": {
+    "types": [
+      {
+        "name": "sound",
+        "values": [
+          {
+            "id": null,
+            "name": {
+              "value": "quack",
+              "synonyms": []
+            }
+          },
+          {
+            "id": null,
+            "name": {
+              "value": "quack quack",
+              "synonyms": []
+            }
+          }
+        ]
+      }
+    ],
+    "intents": [
+      {
+        "name": "AMAZON.CancelIntent",
+        "samples": []
+      },
+      {
+        "name": "AMAZON.HelpIntent",
+        "samples": []
+      },
+      {
+        "name": "AMAZON.StopIntent",
+        "samples": []
+      },
+      {
+        "name": "AnswerIntent",
+        "samples": [
+          "{number}",
+          "{quack}"
+        ],
+        "slots": [
+          {
+            "name": "number",
+            "type": "AMAZON.NUMBER"
+          },
+          {
+            "name": "quack",
+            "type": "sound"
+          }
+        ]
+      },
+      {
+        "name": "PlayIntent",
+        "samples": [
+          "start",
+          "play",
+          "begin",
+          "go",
+          "let's play",
+          "let's begin",
+          "let's start"
+        ],
+        "slots": []
+      },
+      {
+        "name": "PlayWithFriends",
+        "samples": [
+          "play with {numFriends} friends",
+          "play with {numFriends} people",
+          "with {numFriends} people",
+          "with {numFriends} friends",
+          "{numFriends} friends",
+          "{numFriends} people",
+          "start with {numFriends}",
+          "begin with {numFriends}"
+        ],
+        "slots": [
+          {
+            "name": "numFriends",
+            "type": "AMAZON.NUMBER"
+          }
+        ]
+      }
+    ],
+    "invocationName": "three six nine"
+  }
+}
