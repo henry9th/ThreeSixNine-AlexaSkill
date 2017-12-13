@@ -1,5 +1,7 @@
 # ThreeSixNine_AlexaSkill
 
+### The game can be found in the skill store as '3 6 9' 
+
 ## Overview
 
 Three Six Nine is traditionally a Korean counting game where each member of the game takes a turn counting by one. However, if one of the digits in the number contains a three, six, or nine, the player must clap. In addition, if the number is divisible by three, the player must clap. (ex. 1, 2, clap, 4 ... 11, clap, clap, 14) 
