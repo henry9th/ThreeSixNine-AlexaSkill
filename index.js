@@ -6,7 +6,7 @@ const Alexa = require('alexa-sdk');
 const WELCOME_MESSAGE = "Welcome to three six nine. You can play three six nine with just me or with friends. Examples are play, play with three people, or help for how to play.";
 const START_GAME_MESSAGE = "OK. I will start!";
 const HELP_MESSAGE = "Three six nine is a game where we take turns counting up from one. If the number is divisible by three, you're going to say quack. If the number has a three, six, or nine anywhere, you're going to say quack. If the number contains more than one digit that contains either a three, six, or nine, then you're going to say quack quack";
-const exitSkillMessage = ["Better luck next time!", "You'll get it next time!", "Good effort", "See you again", "You'll get better, don't worry"];
+const exitSkillMessage = ["Better luck next time!", "You'll get it next time!", "Good effort", "See you again", "Let's play again"];
 const speechConsWrong = ["Argh", "Aw man", "Blarg", "Blast", "Boo", "Bummer", "Darn", "D'oh", "Dun dun dun", "Eek", "Honk", "Le sigh",
 "Mamma mia", "Oh boy", "Oh dear", "Oof", "Ouch", "Ruh roh", "Shucks", "Uh oh", "Wah wah", "Whoops a daisy", "Yikes"];
 
@@ -147,7 +147,9 @@ const gameHandlers = Alexa.CreateStateHandler(states.GAME,{
         this.emit(":responseReady");
     },
     "Unhandled": function() {
-        this.emit(":ask", "test test");
+        let speechOutput = endGame();
+        this.response.speak(speechOutput);
+        this.emit(":responseReady"); 
     }
 });
 
@@ -166,6 +168,7 @@ function checkAnswer(slots, value)
         } 
 }
     return false;
+    
 }
  
 //Returns what the correct input/output should be according to game rules (Alexa and User)
