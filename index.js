@@ -34,6 +34,11 @@ const handlers = {
     },
     "PlayWithFriends": function() { 
          const itemSlot = this.event.request.intent.slots.numFriends.value; 
+         if (isNaN(itemSlot)){
+             let speechOutput = itemSlot + " is not a number. Try again";
+             this.response.speak(speechOutput);
+             this.emit(':responseReady');
+         }
          numPlayers = itemSlot;
          numPlayers++; //account for Alexa
          this.handler.state = states.GAME; 
@@ -62,6 +67,11 @@ const startHandlers = Alexa.CreateStateHandler(states.START,{
     },
      "PlayWithFriends": function() { 
          const itemSlot = this.event.request.intent.slots.numFriends.value; 
+         if (isNaN(itemSlot)){
+             let speechOutput = itemSlot + " is not a number. Try again";
+             this.response.speak(speechOutput);
+             this.emit(':responseReady');
+         }
          numPlayers = itemSlot;
          numPlayers++; //account for Alexa
          this.handler.state = states.GAME; 
